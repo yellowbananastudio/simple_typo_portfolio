@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Textura - Typography Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- フォント読み込み -->
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@100..900&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        /* --- グローバル設定 --- */
+        :root {
+            --color-bg: #FFFFFF;
+            --color-text: #111111;
+            --color-bg-inv: #111111;
+            --color-text-inv: #FFFFFF;
+            --color-border: #EEEEEE;
+            --color-border-darker: #DDDDDD;
+            --color-text-muted: #AAAAAA;
+            --color-text-subtle: #555555;
+
+            --font-serif: 'EB Garamond', serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+            --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        /* スムーズスクロールと基本リセット */
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            font-family: var(--font-sans);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-weight: 400;
+            line-height: 1.6;
+            overflow-x: hidden;
+            opacity: 0;
+            transition: opacity 1s var(--ease-out-expo);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        body.loaded { opacity: 1; }
+
+        h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0; font-weight: normal; }
+        a { color: inherit; text-decoration: none; transition: color 0.3s ease; }
+        a:hover { color: var(--color-text-muted); }
+        ul, li { list-style: none; margin: 0; padding: 0; }
+
+        /* --- ローディング画面 --- */
+        .loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--color-bg);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+            transition: opacity 0.5s ease-out 0.5s, visibility 0s linear 1s;
+        }
+        .loaded .loader {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+
+        /* --- ヘッダー / ナビゲーション --- */
+        .site-header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            padding: 30px 4%; box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 1000;
+            mix-blend-mode: difference;
+            pointer-events: none;
+        }
+        .site-title {
+            font-family: var(--font-serif);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-text-inv);
+            pointer-events: auto;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        .main-nav ul {
+            display: flex;
+            gap: 25px;
+             opacity: 0;
+             transform: translateY(-10px);
+        }
+        .main-nav a {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            color: var(--color-text-inv);
+            pointer-events: auto;
+            transition: opacity 0.3s ease;
+        }
+        .main-nav a:hover { opacity: 0.6; }
+
+
+        /* --- HEROセクション --- */
+        .hero-typography {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-title-wrapper { position: relative; text-align: center; }
+        .hero-title-main {
+            font-family: var(--font-serif);
+            font-size: clamp(80px, 25vw, 350px);
+            font-weight: 400; font-style: italic; line-height: 0.85;
+            color: var(--color-text); margin: 0;
+        }
+        .hero-title-main .line-wrapper { overflow: hidden; display: block; }
+        .hero-title-main .line { display: block; transform: translateY(105%); }
+        .hero-subtitle {
+            font-family: var(--font-sans); font-size: 14px; font-weight: 300;
+            letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-text);
+            position: absolute; bottom: -1.5em; left: 50%; white-space: nowrap;
+            opacity: 0; transform: translate(-50%, 10px);
+        }
+
+
+        /* --- メインコンテンツエリア --- */
+        main { position: relative; z-index: 10; background-color: var(--color-bg); }
+
+        /* --- セクション共通スタイル --- */
+        .content-section {
+            padding: 20vh 8%; min-height: 80vh; position: relative;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .content-section:last-child { border-bottom: none; }
+        .section-heading {
+            position: absolute; top: 8vh; left: 8%;
+            font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em;
+            color: var(--color-text-muted); writing-mode: vertical-rl; text-orientation: mixed;
+            opacity: 0; transform: translateX(-30px);
+        }
+
+
+        /* --- Works セクション --- */
+        #works .content-section { padding-bottom: 25vh; }
+        .works-list { width: 100%; max-width: 1400px; margin: 0 auto; }
+        .work-item {
+            position: relative; padding: 8vh 0;
+            border-top: 1px solid var(--color-border); cursor: pointer;
+        }
+        .work-item:first-child { border-top: none; }
+        .work-item-header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 3vh; pointer-events: none;
+        }
+        .work-title {
+            font-family: var(--font-sans); font-size: clamp(40px, 8vw, 100px);
+            font-weight: 100; line-height: 1.0; color: var(--color-text);
+            margin: 0; position: relative; overflow: hidden;
+        }
+        .work-title .char { display: inline-block; transform: translateY(105%); transition: color 0.3s ease; }
+        .work-item:hover .work-title .char { color: var(--color-text-muted); }
+        .work-meta {
+            text-align: right; font-family: var(--font-mono); font-size: 13px;
+            color: var(--color-text-muted); line-height: 1.5;
+            opacity: 0; transform: translateY(10px);
+        }
+        .work-details { max-height: 0; overflow: hidden; padding-left: 2vw; pointer-events: none; }
+        .work-details p {
+            font-family: var(--font-serif); font-size: clamp(16px, 1.8vw, 20px);
+            color: var(--color-text-subtle); max-width: 60ch; margin: 0 0 1.5em 0;
+            opacity: 0; transform: translateY(20px);
+        }
+
+
+        /* --- About セクション --- */
+        #about .content-section { display: flex; gap: 10%; align-items: flex-start; }
+        .about-text-horizontal { flex: 2; max-width: 65ch; opacity: 0; transform: translateY(30px); }
+        .about-text-horizontal h3 {
+            font-family: var(--font-serif); font-size: clamp(24px, 3vw, 36px);
+            font-weight: 600; margin-bottom: 30px; line-height: 1.3;
+        }
+        .about-text-horizontal p {
+            font-family: var(--font-sans); font-size: 16px; color: var(--color-text-subtle);
+            margin-bottom: 1.5em; font-weight: 300;
+        }
+        .about-text-vertical {
+            flex: 1; writing-mode: vertical-rl; text-orientation: mixed;
+            font-family: var(--font-serif); font-size: 15px; line-height: 2.5; color: #666;
+            padding-top: 1em; max-height: 60vh; overflow: hidden;
+            opacity: 0; transform: translateX(30px);
+        }
+
+        /* --- Journal セクション --- */
+        #journal .content-section { padding-bottom: 20vh; }
+        .journal-list { width: 100%; max-width: 1000px; margin: 0 auto; }
+        .journal-item {
+            padding: 5vh 0; border-top: 1px solid var(--color-border);
+            display: flex; gap: 5%; align-items: flex-start;
+            opacity: 0; transform: translateY(30px);
+        }
+        .journal-item:first-child { border-top: none; padding-top: 0; }
+        .journal-meta {
+            flex-basis: 120px; flex-shrink: 0; font-family: var(--font-mono);
+            font-size: 13px; color: var(--color-text-muted); line-height: 1.5;
+        }
+        .journal-content { flex-grow: 1; }
+        .journal-title {
+            font-family: var(--font-serif); font-size: clamp(24px, 3.5vw, 40px);
+            font-weight: 600; line-height: 1.2; margin-bottom: 10px; display: inline;
+            background-image: linear-gradient(var(--color-text), var(--color-text));
+            background-size: 0% 1px; background-position: left bottom;
+            background-repeat: no-repeat; transition: background-size 0.4s var(--ease-out-quart);
+        }
+        .journal-item a:hover .journal-title { background-size: 100% 1px; color: var(--color-text); }
+        .journal-excerpt {
+            font-family: var(--font-sans); font-size: 15px; color: var(--color-text-subtle);
+            font-weight: 300; display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .journal-readmore {
+            font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.05em;
+            margin-top: 15px; display: inline-block; color: var(--color-text-muted);
+            position: relative; padding-right: 15px;
+        }
+         .journal-readmore::after {
+            content: '→'; position: absolute; right: 0; top: 50%;
+            transform: translateY(-50%); transition: transform 0.3s ease;
+        }
+         .journal-item a:hover .journal-readmore::after { transform: translateY(-50%) translateX(3px); }
+
+
+        /* --- Contact セクション --- */
+        #contact .content-section {
+            padding-top: 20vh; padding-bottom: 25vh; display: flex;
+            gap: 10%; align-items: flex-start;
+        }
+        .contact-info { flex: 1; position: sticky; top: 15vh; opacity: 0; transform: translateY(30px); }
+        .contact-info h3 {
+            font-family: var(--font-serif); font-size: clamp(24px, 3vw, 36px);
+            font-weight: 600; margin-bottom: 25px; line-height: 1.3;
+        }
+        .contact-info p {
+            font-family: var(--font-sans); font-size: 16px; color: var(--color-text-subtle);
+            margin-bottom: 1.5em; font-weight: 300; max-width: 45ch;
+        }
+        .contact-details { margin-top: 40px; font-family: var(--font-mono); font-size: 14px; line-height: 1.8; }
+        .contact-details a { display: block; margin-bottom: 10px; transition: color 0.3s ease, transform 0.3s ease; }
+        .contact-details a:hover { color: var(--color-text); transform: translateX(5px); }
+        .contact-form-wrapper { flex: 1.5; }
+        .contact-form label {
+            display: block; font-family: var(--font-mono); font-size: 12px;
+            letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 8px;
+            opacity: 0; transform: translateY(10px);
+        }
+        .contact-form input[type="text"],
+        .contact-form input[type="email"],
+        .contact-form textarea {
+            display: block; width: 100%; padding: 15px 0; border: none;
+            border-bottom: 1px solid var(--color-border-darker); background-color: transparent;
+            font-family: var(--font-sans); font-size: 16px; color: var(--color-text);
+            margin-bottom: 35px; transition: border-color 0.3s ease; box-sizing: border-box;
+            font-weight: 300; opacity: 0; transform: translateY(10px);
+        }
+        .contact-form textarea { min-height: 120px; resize: vertical; }
+        .contact-form input[type="text"]:focus,
+        .contact-form input[type="email"]:focus,
+        .contact-form textarea:focus { outline: none; border-bottom-color: var(--color-text); }
+        .contact-form button {
+            font-family: var(--font-mono); font-size: 14px; font-weight: 400;
+            letter-spacing: 0.05em; color: var(--color-text); background-color: transparent;
+            border: 1px solid var(--color-text); padding: 12px 30px; cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease; display: inline-block;
+            opacity: 0; transform: translateY(10px);
+        }
+        .contact-form button:hover { background-color: var(--color-text); color: var(--color-bg); }
+
+
+        /* --- フッター --- */
+        footer { padding: 30px 4%; text-align: center; font-family: var(--font-mono); font-size: 11px; color: #ccc; }
+
+
+        /* --- レスポンシブ --- */
+        @media (max-width: 900px) {
+            #contact .content-section { flex-direction: column; gap: 60px; }
+            .contact-info { position: static; flex: none; width: 100%; }
+            .contact-form-wrapper { flex: none; width: 100%; }
+        }
+        @media (max-width: 768px) {
+            .site-header { padding: 20px 5%; }
+            .site-title { font-size: 18px; }
+            .main-nav ul { gap: 15px; }
+            .main-nav a { font-size: 11px; }
+
+            .hero-typography { align-items: flex-end; padding-bottom: 15vh;}
+            .hero-title-main { font-size: 18vw; }
+            .hero-subtitle { font-size: 11px; letter-spacing: 0.15em; bottom: auto; top: calc(100% + 0.5em); }
+
+            .content-section { padding: 15vh 5%; }
+            .section-heading { display: none; }
+
+            .work-title { font-size: 10vw; }
+            .work-meta { font-size: 11px; text-align: left; margin-top: 10px; }
+            .work-item-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .work-details p { font-size: 15px; }
+
+            #about .content-section { flex-direction: column; gap: 40px; }
+            .about-text-vertical { writing-mode: horizontal-tb; max-height: none; transform: none; opacity: 1; transition: none; padding-top: 0;}
+            .about-text-horizontal p { font-size: 15px; }
+
+            .journal-item { flex-direction: column; gap: 15px; padding: 4vh 0; }
+            .journal-meta { flex-basis: auto; }
+            .journal-title { font-size: 6vw; }
+            .journal-excerpt { font-size: 14px; -webkit-line-clamp: 3; }
+
+            .contact-info h3 { font-size: 24px; }
+            .contact-info p { font-size: 15px; }
+            .contact-details { font-size: 13px; margin-top: 30px; }
+            .contact-form input[type="text"],
+            .contact-form input[type="email"],
+            .contact-form textarea { font-size: 15px; margin-bottom: 30px; }
+            .contact-form button { font-size: 13px; padding: 10px 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="loader">Loading...</div>
+
+    <header class="site-header">
+        <div class="site-title"><a href="#top">Textura</a></div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="#works">Works</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#journal">Journal</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="top"></div>
+
+    <section class="hero-typography">
+        <div class="hero-title-wrapper">
+            <h1 class="hero-title-main">
+                <span class="line-wrapper"><span class="line">Form</span></span>
+                <span class="line-wrapper"><span class="line">& Void</span></span>
+            </h1>
+            <span class="hero-subtitle">Crafting Meaning Through Type</span>
+        </div>
+    </section>
+
+    <main>
+        <section id="works">
+            <span class="section-heading">Selected Works</span>
+            <div class="content-section">
+                <ul class="works-list">
+                    <li class="work-item" data-index="0">
+                        <div class="work-item-header">
+                            <h2 class="work-title">Silence</h2>
+                            <div class="work-meta">
+                                <span>[ 01 ]</span><br>
+                                <span>Editorial Design</span><br>
+                                <span>2023</span>
+                            </div>
+                        </div>
+                        <div class="work-details">
+                            <p>ミニマリズムを探求する書籍デザイン。余白と文字の関係性に焦点を当て、静謐な読書体験を構築。書体選択とグリッドシステムに細心の注意を払った。</p>
+                            <p>使用書体: EB Garamond, Inter. キーワード: Minimalism, Grid System, White Space, Print.</p>
+                        </div>
+                    </li>
+                    <li class="work-item" data-index="1">
+                        <div class="work-item-header">
+                             <h2 class="work-title">Flux</h2>
+                            <div class="work-meta">
+                                <span>[ 02 ]</span><br>
+                                <span>Web Identity</span><br>
+                                <span>2024</span>
+                            </div>
+                        </div>
+                        <div class="work-details">
+                            <p>流動性をテーマにしたブランドアイデンティティとウェブサイト。可変フォントとインタラクティブな要素を用い、常に変化する現代性を表現した。</p>
+                             <p>使用技術: Variable Fonts, GSAP, Interaction Design. キーワード: Fluidity, Digital Identity, Web, Motion.</p>
+                        </div>
+                    </li>
+                     <li class="work-item" data-index="2">
+                        <div class="work-item-header">
+                            <h2 class="work-title">Archive</h2>
+                            <div class="work-meta">
+                                <span>[ 03 ]</span><br>
+                                <span>Typeface Design</span><br>
+                                <span>2022</span>
+                            </div>
+                        </div>
+                        <div class="work-details">
+                            <p>歴史的資料から着想を得たカスタムタイプフェイスのデザイン。古典的な骨格と現代的なディテールを融合させ、デジタル環境での可読性を追求した。</p>
+                             <p>プロセス: Research, Sketching, Glyphs App, Font Engineering. キーワード: Typography, Custom Font, Legibility.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="about">
+             <span class="section-heading">Manifesto</span>
+            <div class="content-section">
+                <div class="about-text-horizontal">
+                    <h3>Structure & Spirit</h3>
+                    <p>私たちは、タイポグラフィを単なる情報の伝達手段ではなく、空間を構築し、感情を喚起する力を持つものと捉えています。文字の形状、ウェイト、間隔、配置。それら一つ一つの選択が、意味と美意識を織りなします。</p>
+                    <p>構造的な思考に基づいたロジックと、表現の可能性を探る自由な精神。その両輪によって、機能的かつ詩的な、記憶に残るデザインを生み出すことを目指しています。Textura is a design practice focused on the intersection of typography, structure, and digital experiences.</p>
+                </div>
+                <div class="about-text-vertical">
+                    文字は沈黙の声であり、<br>
+                    空白は雄弁な語り部となる。<br>
+                    秩序の中に自由を見出し、<br>
+                    制約の中に美を発見する。<br>
+                    形態に意味を、<br>
+                    空間に感情を。<br>
+                    タイポグラフィは建築であり、<br>
+                    そして詩である。
+                </div>
+            </div>
+        </section>
+
+        <section id="journal">
+            <span class="section-heading">Writings</span>
+            <div class="content-section">
+                <ul class="journal-list">
+                    <li class="journal-item">
+                        <div class="journal-meta">Aug 15, 2024</div>
+                        <div class="journal-content">
+                             <a href="#">
+                                <h3 class="journal-title">余白の呼吸：ミニマリズムにおける空白の役割</h3>
+                                <p class="journal-excerpt">デザインにおける「何もない」空間は、決して無意味ではありません。むしろ、要素間の関係性を定義し、視線を誘導し、静寂や緊張感といった感情的な響きをもたらす重要な要素です。本稿では、効果的な余白の使い方について考察します。</p>
+                                <!-- <span class="journal-readmore">Read More</span> -->
+                            </a>
+                        </div>
+                    </li>
+                     <li class="journal-item">
+                        <div class="journal-meta">Jul 02, 2024</div>
+                        <div class="journal-content">
+                             <a href="#">
+                                <h3 class="journal-title">可変フォントの可能性：静的から動的タイポグラフィへ</h3>
+                                <p class="journal-excerpt">テクノロジーの進化はタイポグラフィにも新たな地平を開きました。可変フォントは、単一のファイル内に無限のスタイルバリエーションを内包し、レスポンシブデザインやインタラクティブ表現に革命をもたらします。その具体的な活用事例を探ります。</p>
+                            </a>
+                        </div>
+                    </li>
+                     <li class="journal-item">
+                        <div class="journal-meta">May 20, 2024</div>
+                        <div class="journal-content">
+                             <a href="#">
+                                <h3 class="journal-title">セリフとサンセリフ：書体の個性を読み解く</h3>
+                                <p class="journal-excerpt">タイポグラフィの基本であるセリフ体とサンセリフ体。それぞれの歴史的背景、構造的特徴、そしてデザインにおいてどのような印象や機能を与えるのかを改めて考察します。プロジェクトに適した書体を選ぶためのヒントを提供します。</p>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+                 <!-- <div style="text-align: center; margin-top: 5vh;"><a href="#" class="journal-readmore">View All Entries</a></div> -->
+            </div>
+        </section>
+
+        <section id="contact">
+             <span class="section-heading">Inquiry</span>
+            <div class="content-section">
+                <div class="contact-info">
+                    <h3>Get in Touch</h3>
+                    <p>プロジェクトのご依頼、協業のご提案、その他お問い合わせは、下記フォームまたはメールにてお気軽にご連絡ください。内容を確認後、担当者より折り返しご連絡いたします。</p>
+                    <div class="contact-details">
+                        <a href="mailto:hello@textura.studio">hello@textura.studio</a>
+                        <!-- <a href="#">LinkedIn Profile</a> -->
+                        <!-- <a href="#">Instagram Feed</a> -->
+                    </div>
+                </div>
+                <div class="contact-form-wrapper">
+                    <form class="contact-form" name="contact" method="POST" data-netlify="true"> <!-- Example for Netlify Forms -->
+                        <input type="hidden" name="form-name" value="contact"> <!-- Required for Netlify -->
+                         <div>
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div>
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                         <div>
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject">
+                        </div>
+                        <div>
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <div>
+                            <button type="submit">Send Message</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 Studio Textura. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/split-type"></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+            initAnimations();
+        });
+
+        function initAnimations() {
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.to('.site-title, .main-nav ul', { opacity: 1, y: 0, duration: 1, ease: 'power3.out', stagger: 0.1, delay: 0.5 });
+
+            const heroTitleLines = document.querySelectorAll('.hero-title-main .line');
+            const heroSubtitle = document.querySelector('.hero-subtitle');
+            gsap.to(heroTitleLines, { y: 0, duration: 1.5, ease: 'expo.out', stagger: 0.1, delay: 0.2 });
+            gsap.to(heroSubtitle, { opacity: 1, y: '-50%', duration: 1, ease: 'power3.out', delay: 0.8 });
+
+            const sections = document.querySelectorAll('main section');
+            sections.forEach((section) => {
+                const heading = section.querySelector('.section-heading');
+                if (heading) {
+                    gsap.to(heading, { opacity: 1, x: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: section, start: 'top 70%' } });
+                    ScrollTrigger.create({ trigger: section, start: 'top 70%', onEnter: () => heading.classList.add('is-visible') });
+                }
+                 if (section.id === 'about') {
+                    const horizontalText = section.querySelector('.about-text-horizontal');
+                    const verticalText = section.querySelector('.about-text-vertical');
+                    gsap.to(horizontalText, { opacity: 1, y: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: section, start: 'top 60%'} });
+                    gsap.to(verticalText, { opacity: 1, x: 0, duration: 1, ease: 'power3.out', delay: 0.2, scrollTrigger: { trigger: section, start: 'top 60%'} });
+                    ScrollTrigger.create({ trigger: section, start: 'top 60%', onEnter: () => section.classList.add('is-visible') });
+                 }
+                 if (section.id === 'contact') {
+                     const contactInfo = section.querySelector('.contact-info');
+                     const formElements = section.querySelectorAll('.contact-form label, .contact-form input, .contact-form textarea, .contact-form button');
+                     gsap.to(contactInfo, { opacity: 1, y: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: section, start: 'top 65%' } });
+                     gsap.to(formElements, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.07, scrollTrigger: { trigger: '.contact-form-wrapper', start: 'top 75%' } });
+                 }
+            });
+
+            const workItems = document.querySelectorAll('.work-item');
+            function splitCharsWithSplitType(element) {
+                if (!element) return null;
+                const typeInstance = new SplitType(element, { types: 'chars' });
+                return typeInstance.chars;
+            }
+            workItems.forEach((item) => {
+                 const title = item.querySelector('.work-title');
+                 const meta = item.querySelector('.work-meta');
+                 const details = item.querySelector('.work-details');
+                 const detailsParagraphs = details.querySelectorAll('p');
+                 const chars = splitCharsWithSplitType(title);
+                 if(chars) { gsap.fromTo(chars, { y: '105%' }, { y: '0%', duration: 0.8, ease: 'expo.out', stagger: 0.02, scrollTrigger: { trigger: item, start: 'top 75%'} }); }
+                 gsap.fromTo(meta, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.4, scrollTrigger: { trigger: item, start: 'top 75%'} });
+                 ScrollTrigger.create({ trigger: item, start: 'top 75%', onEnter: () => item.classList.add('is-visible') });
+                 let detailsTween;
+                 item.addEventListener('click', (e) => {
+                     // If the click is on a link inside details, prevent toggling
+                     if (e.target.closest('.work-details a')) {
+                         return;
+                     }
+
+                     item.classList.toggle('is-open');
+                     if (item.classList.contains('is-open')) {
+                         if (detailsTween) detailsTween.kill();
+                         detailsTween = gsap.timeline()
+                            .to(details, { maxHeight: details.scrollHeight + 30, duration: 0.8, ease: 'expo.out' }) // +30 for padding/margin
+                            .to(detailsParagraphs, { opacity: 1, y: 0, stagger: 0.1, duration: 0.6, ease: 'power3.out' }, "-=0.6");
+                     } else {
+                         if (detailsTween) detailsTween.kill();
+                         detailsTween = gsap.timeline()
+                            .to(detailsParagraphs, { opacity: 0, y: 20, stagger: 0.05, duration: 0.4, ease: 'power3.in' })
+                            .to(details, { maxHeight: 0, duration: 0.6, ease: 'expo.out' }, "+=0.1");
+                     }
+                 });
+            });
+
+             const journalItems = document.querySelectorAll('.journal-item');
+             journalItems.forEach((item, index) => {
+                 gsap.fromTo(item, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: item, start: 'top 85%' }, delay: index * 0.1 });
+             });
+        }
+    </script>
+
+</body>
+</html>
